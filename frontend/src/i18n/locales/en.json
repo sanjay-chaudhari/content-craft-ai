@@ -1,0 +1,189 @@
+{
+  "APP": {
+    "HEADER": {
+      "TITLE": "ContentCraft AI",
+      "SUBTITLE": "Generate AI-powered content with Amazon Bedrock",
+      "SIGN_OUT": "Sign Out",
+      "WELCOME": "Welcome, {{username}}"
+    },
+    "FOOTER": {
+      "POWERED_BY": "Powered by Amazon Bedrock and AWS Amplify",
+      "COPYRIGHT": "© {{year}} All rights reserved."
+    }
+  },
+  "AUTH": {
+    "SIGN_IN": {
+      "TITLE": "Sign In",
+      "USERNAME": "Username",
+      "PASSWORD": "Password",
+      "FORGOT_PASSWORD": "Forgot password?",
+      "SIGN_IN": "Sign In",
+      "SIGNING_IN": "Signing In...",
+      "NO_ACCOUNT": "Don't have an account?",
+      "SIGN_UP": "Sign Up",
+      "NEED_VERIFICATION": "Need to verify your account?",
+      "VERIFY_ACCOUNT": "Verify Account"
+    },
+    "SIGN_UP": {
+      "TITLE": "Create Account",
+      "USERNAME": "Username",
+      "EMAIL": "Email",
+      "PASSWORD": "Password",
+      "PASSWORD_REQUIREMENTS": "Password must be at least 8 characters and include uppercase, lowercase, numbers, and symbols.",
+      "CONFIRM_PASSWORD": "Confirm Password",
+      "SIGN_UP": "Sign Up",
+      "SIGNING_UP": "Signing Up...",
+      "HAVE_ACCOUNT": "Already have an account?",
+      "SIGN_IN": "Sign In"
+    },
+    "CONFIRM": {
+      "TITLE": "Verify Your Account",
+      "INSTRUCTIONS": "We've sent a verification code to your email. Please enter the code below to verify your account.",
+      "USERNAME": "Username",
+      "CODE": "Verification Code",
+      "CONFIRM": "Verify Account",
+      "CONFIRMING": "Verifying...",
+      "BACK_TO_SIGN_IN": "Ready to sign in?",
+      "SIGN_IN": "Sign In"
+    },
+    "FORGOT_PASSWORD": {
+      "TITLE": "Reset Password",
+      "USERNAME": "Username",
+      "SUBMIT": "Send Reset Code",
+      "SUBMITTING": "Sending...",
+      "INSTRUCTIONS": "Enter your username and we'll send a password reset code to your email.",
+      "CODE_SENT": "We've sent a code to your email. Please enter the code and your new password below.",
+      "CODE": "Verification Code",
+      "NEW_PASSWORD": "New Password",
+      "CONFIRM_PASSWORD": "Confirm New Password",
+      "RESET": "Reset Password",
+      "RESETTING": "Resetting...",
+      "BACK_TO_SIGN_IN": "Remember your password?",
+      "SIGN_IN": "Sign In"
+    },
+    "ERROR": {
+      "ALL_FIELDS_REQUIRED": "All fields are required",
+      "PASSWORDS_DO_NOT_MATCH": "Passwords do not match",
+      "INCORRECT_USERNAME_PASSWORD": "Incorrect username or password",
+      "USER_NOT_CONFIRMED": "User is not confirmed. Please verify your account.",
+      "USERNAME_EXISTS": "Username already exists",
+      "INVALID_CODE": "Invalid verification code",
+      "SIGN_IN_FAILED": "Sign in failed. Please try again.",
+      "SIGN_UP_FAILED": "Sign up failed. Please try again.",
+      "CONFIRM_SIGN_UP_FAILED": "Account verification failed. Please try again.",
+      "FORGOT_PASSWORD_FAILED": "Failed to send reset code. Please try again.",
+      "PASSWORD_RESET_FAILED": "Password reset failed. Please try again.",
+      "SIGN_OUT_FAILED": "Sign out failed. Please try again.",
+      "USERNAME_REQUIRED": "Username is required",
+      "CONFIRMATION_CODE_REQUIRED": "Verification code is required"
+    },
+    "LEGAL": {
+      "TERMS_NOTICE": "By using this application, you agree to the following:",
+      "TERMS": "Terms of Service",
+      "PRIVACY": "Privacy Policy"
+    }
+  },
+  "FORM": {
+    "VIDEO_TYPE": {
+      "LABEL": "Video Type",
+      "SINGLE_CLIP": "Single Clip (6 seconds)",
+      "AUTOMATED_MULTI_CLIP": "Automated Multi-Clip (12-120 seconds)",
+      "MANUAL_MULTI_CLIP": "Manual Multi-Clip (custom shots)"
+    },
+    "SINGLE_CLIP": {
+      "TITLE": "Generate Single Clip",
+      "SCRIPT": "Script",
+      "SCRIPT_PLACEHOLDER": "Describe what you want to see in the video...",
+      "REFERENCE_IMAGE": "Reference Image (optional)",
+      "UPLOAD": "Upload Image",
+      "GENERATE": "Generate Clip",
+      "GENERATING": "Generating..."
+    },
+    "AUTOMATED_MULTI_CLIP": {
+      "TITLE": "Generate Automated Multi-Clip",
+      "SCRIPT": "Script",
+      "SCRIPT_PLACEHOLDER": "Describe the overall story or sequence...",
+      "DURATION": "Duration (seconds)",
+      "REFERENCE_IMAGE": "Reference Image (optional)",
+      "UPLOAD": "Upload Image",
+      "GENERATE": "Generate Multi-Clip",
+      "GENERATING": "Generating..."
+    },
+    "MANUAL_MULTI_CLIP": {
+      "TITLE": "Generate Manual Multi-Clip",
+      "ADD_SHOT": "Add Shot",
+      "SHOT_LABEL": "Shot {{number}}",
+      "SCRIPT": "Script",
+      "SCRIPT_PLACEHOLDER": "Describe this shot...",
+      "REFERENCE_IMAGE": "Reference Image (optional)",
+      "UPLOAD": "Upload",
+      "REMOVE": "Remove",
+      "GENERATE": "Generate Multi-Clip",
+      "GENERATING": "Generating..."
+    },
+    "ERROR": {
+      "SCRIPT_REQUIRED": "Script is required",
+      "DURATION_REQUIRED": "Duration is required",
+      "MIN_DURATION": "Duration must be at least 12 seconds",
+      "MAX_DURATION": "Duration cannot exceed 120 seconds",
+      "MIN_SHOTS": "At least one shot is required",
+      "MAX_SHOTS": "Maximum 20 shots allowed",
+      "SHOT_SCRIPT_REQUIRED": "Script is required for all shots",
+      "IMAGE_SIZE": "Image size exceeds the maximum allowed (5MB)",
+      "IMAGE_TYPE": "Only JPEG, PNG, and WebP images are supported",
+      "SUBMISSION_FAILED": "Failed to submit job. Please try again."
+    }
+  },
+  "STATUS": {
+    "TITLE": "Job Status",
+    "NO_JOB": "No active job. Generate a video to see status here.",
+    "JOB_ID": "Job ID: {{id}}",
+    "STATUS_LABEL": "Status:",
+    "SUBMITTED": "Submitted",
+    "PROCESSING": "Processing",
+    "COMPLETED": "Completed",
+    "FAILED": "Failed",
+    "ERROR": "Error: {{message}}",
+    "REFRESH": "Refresh Status",
+    "AUTO_REFRESH_INTERVAL": "Auto-refreshes every {{seconds}} seconds",
+    "DOWNLOAD": "Download Video",
+    "PREVIEW_SHOTS": "Preview Shots",
+    "SHOT": "Shot {{number}}",
+    "BACK_TO_VIDEO": "Back to Full Video",
+    "NO_VIDEO_URL": "Video URL not found. Please contact support."
+  },
+  "seconds": "seconds",
+  
+  "JOBS": {
+    "TITLE": "Your Videos",
+    "NO_JOBS": "No videos found. Generate your first video!",
+    "REFRESH": "Refresh",
+    "LOAD_MORE": "Load More",
+    "LOADING": "Loading...",
+    "VIEW": "View",
+    "COLUMNS": {
+      "DATE": "Date",
+      "TYPE": "Type",
+      "STATUS": "Status",
+      "ACTIONS": "Actions"
+    },
+    "TASK_TYPE": {
+      "SINGLE": "Single Clip",
+      "AUTOMATED": "Automated Multi-Clip",
+      "MANUAL": "Manual Multi-Clip"
+    }
+  },
+  "EMAIL": {
+    "TITLE": "Email Notifications",
+    "DESCRIPTION": "Subscribe to receive email notifications when your videos are ready.",
+    "CURRENT_EMAIL": "Current email",
+    "SUBSCRIBE": "Subscribe",
+    "SUBSCRIBING": "Subscribing...",
+    "UNSUBSCRIBE": "Unsubscribe",
+    "UNSUBSCRIBING": "Unsubscribing...",
+    "SUBSCRIBE_SUCCESS": "Successfully subscribed! Please check your email to confirm your subscription.",
+    "UNSUBSCRIBE_SUCCESS": "Successfully unsubscribed from notifications.",
+    "SUBSCRIBE_ERROR": "Failed to subscribe. Please try again.",
+    "UNSUBSCRIBE_ERROR": "Failed to unsubscribe. Please try again."
+  }
+}

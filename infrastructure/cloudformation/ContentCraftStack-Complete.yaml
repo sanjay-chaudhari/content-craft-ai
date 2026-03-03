@@ -1,0 +1,566 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'ReelCraft AI - Complete Serverless Video Generation System'
+
+Parameters:
+  ModelId:
+    Type: String
+    Default: amazon.nova-reel-v1:1
+    Description: Amazon Bedrock Nova model ID
+  
+  JobTableName:
+    Type: String
+    Default: ReelCraftJobTable
+    Description: Name of the DynamoDB table for job tracking
+  
+  ReelStorageBucketName:
+    Type: String
+    Default: reelcraft-video-storage
+    Description: Name of the S3 bucket for storing generated videos
+  
+  ImageUploadBucketName:
+    Type: String
+    Default: reelcraft-image-uploads
+    Description: Name of the S3 bucket for storing uploaded images
+  
+  UserPoolName:
+    Type: String
+    Default: ReelCraftUserPool
+    Description: Name of the Cognito User Pool
+  
+  UserPoolClientName:
+    Type: String
+    Default: ReelCraftUserPoolClient
+    Description: Name of the Cognito User Pool Client
+  
+  IdentityPoolName:
+    Type: String
+    Default: ReelCraftIdentityPool
+    Description: Name of the Cognito Identity Pool
+  
+  CodeBucketName:
+    Type: String
+    Default: reelcraft-deployment-code
+    Description: Name of the S3 bucket for storing Lambda code packages
+
+Resources:
+  # =============================
+  # Deployment Resources
+  # =============================
+  
+  CodeBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${CodeBucketName}-${AWS::AccountId}-${AWS::Region}'
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldVersions
+            Status: Enabled
+            ExpirationInDays: 30
+  
+  # =============================
+  # Authentication Resources
+  # =============================
+  
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Ref UserPoolName
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+      VerificationMessageTemplate:
+        DefaultEmailOption: CONFIRM_WITH_CODE
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+          RequireUppercase: true
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+  
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Ref UserPoolClientName
+      UserPoolId: !Ref UserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      PreventUserExistenceErrors: ENABLED
+  
+  IdentityPool:
+    Type: AWS::Cognito::IdentityPool
+    Properties:
+      IdentityPoolName: !Ref IdentityPoolName
+      AllowUnauthenticatedIdentities: false
+      CognitoIdentityProviders:
+        - ClientId: !Ref UserPoolClient
+          ProviderName: !GetAtt UserPool.ProviderName
+  
+  AuthenticatedRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: cognito-identity.amazonaws.com
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                cognito-identity.amazonaws.com:aud: !Ref IdentityPool
+              ForAnyValue:StringLike:
+                cognito-identity.amazonaws.com:amr: authenticated
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+  
+  IdentityPoolRoleAttachment:
+    Type: AWS::Cognito::IdentityPoolRoleAttachment
+    Properties:
+      IdentityPoolId: !Ref IdentityPool
+      Roles:
+        authenticated: !GetAtt AuthenticatedRole.Arn
+  
+  # =============================
+  # Storage Resources
+  # =============================
+  
+  JobTrackingTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref JobTableName
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: job_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: job_id
+          KeyType: HASH
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+  
+  ReelStorageBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${ReelStorageBucketName}-${AWS::AccountId}-${AWS::Region}'
+      VersioningConfiguration:
+        Status: Enabled
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+              - HEAD
+            AllowedOrigins:
+              - '*'
+            MaxAge: 3000
+  
+  ImageUploadBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${ImageUploadBucketName}-${AWS::AccountId}-${AWS::Region}'
+      VersioningConfiguration:
+        Status: Enabled
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+              - HEAD
+            AllowedOrigins:
+              - '*'
+            MaxAge: 3000
+  
+  # =============================
+  # Notification Resources
+  # =============================
+  
+  CompletionTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: ReelCraftCompletionTopic
+      TopicName: ReelCraftCompletionTopic
+  
+  # =============================
+  # Lambda Functions
+  # =============================
+  
+  # Submit Job Lambda
+  SubmitJobFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: ReelCraft-SubmitJob
+      Handler: submit.submit_job_handler
+      Runtime: python3.12
+      Timeout: 29
+      MemorySize: 256
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref JobTrackingTable
+          IMAGE_BUCKET: !Ref ImageUploadBucket
+      Code:
+        S3Bucket: !Ref CodeBucket
+        S3Key: submit_job.zip
+      Role: !GetAtt SubmitJobRole.Arn
+  
+  SubmitJobRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: SubmitJobPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                Resource: !GetAtt JobTrackingTable.Arn
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource: !Sub '${ImageUploadBucket.Arn}/*'
+  
+  # Process Job Lambda
+  ProcessJobFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: ReelCraft-ProcessJob
+      Handler: process.process_job_handler
+      Runtime: python3.12
+      Timeout: 900  # 15 minutes
+      MemorySize: 512
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref JobTrackingTable
+          BUCKET: !Ref ReelStorageBucket
+          IMAGE_BUCKET: !Ref ImageUploadBucket
+          SNS_TOPIC_ARN: !Ref CompletionTopic
+          MODEL_ID: !Ref ModelId
+      Code:
+        S3Bucket: !Ref CodeBucket
+        S3Key: process_job.zip
+      Role: !GetAtt ProcessJobRole.Arn
+  
+  ProcessJobRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: ProcessJobPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                Resource: !GetAtt JobTrackingTable.Arn
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource: !Sub '${ImageUploadBucket.Arn}/*'
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                Resource: !Sub '${ReelStorageBucket.Arn}/*'
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                Resource: !Ref CompletionTopic
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                  - bedrock:StartAsyncInvoke
+                  - bedrock:ListAsyncInvokes
+                  - bedrock:GetAsyncInvoke
+                Resource: 
+                  - !Sub 'arn:aws:bedrock:${AWS::Region}::foundation-model/amazon.nova-reel-v1:1'
+                  - !Sub 'arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:async-invoke/*'
+                  - !Sub 'arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:foundation-model/amazon.nova-reel-v1:1'
+  
+  # Check Job Status Lambda
+  CheckJobStatusFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: ReelCraft-CheckJobStatus
+      Handler: status.check_job_status_handler
+      Runtime: python3.12
+      Timeout: 29
+      MemorySize: 256
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref JobTrackingTable
+      Code:
+        S3Bucket: !Ref CodeBucket
+        S3Key: check_status.zip
+      Role: !GetAtt CheckJobStatusRole.Arn
+  
+  CheckJobStatusRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: CheckJobStatusPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                Resource: !GetAtt JobTrackingTable.Arn
+  
+  # DynamoDB Stream Trigger for ProcessJobFunction
+  ProcessJobEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 1
+      Enabled: true
+      EventSourceArn: !GetAtt JobTrackingTable.StreamArn
+      FunctionName: !GetAtt ProcessJobFunction.Arn
+      StartingPosition: LATEST
+      FilterCriteria:
+        Filters:
+          - Pattern: '{"eventName": ["INSERT"]}'
+  
+  # =============================
+  # API Gateway
+  # =============================
+  
+  ReelCraftApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: ReelCraftApi
+      Description: API for ReelCraft AI video generation
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+  
+  ApiAuthorizer:
+    Type: AWS::ApiGateway::Authorizer
+    Properties:
+      Name: ReelCraftCognitoAuthorizer
+      RestApiId: !Ref ReelCraftApi
+      Type: COGNITO_USER_POOLS
+      IdentitySource: method.request.header.Authorization
+      ProviderARNs:
+        - !GetAtt UserPool.Arn
+  
+  # Submit Job Endpoint
+  SubmitJobResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ReelCraftApi
+      ParentId: !GetAtt ReelCraftApi.RootResourceId
+      PathPart: reel_generation
+  
+  SubmitJobMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ReelCraftApi
+      ResourceId: !Ref SubmitJobResource
+      HttpMethod: POST
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref ApiAuthorizer
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SubmitJobFunction.Arn}/invocations
+      MethodResponses:
+        - StatusCode: 200
+        - StatusCode: 202
+        - StatusCode: 400
+        - StatusCode: 500
+  
+  # Check Job Status Endpoint
+  JobStatusResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ReelCraftApi
+      ParentId: !GetAtt ReelCraftApi.RootResourceId
+      PathPart: job_status
+  
+  JobStatusIdResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ReelCraftApi
+      ParentId: !Ref JobStatusResource
+      PathPart: '{jobId}'
+  
+  JobStatusMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ReelCraftApi
+      ResourceId: !Ref JobStatusIdResource
+      HttpMethod: GET
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref ApiAuthorizer
+      RequestParameters:
+        method.request.path.jobId: true
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CheckJobStatusFunction.Arn}/invocations
+      MethodResponses:
+        - StatusCode: 200
+        - StatusCode: 404
+        - StatusCode: 500
+  
+  # CORS Support
+  SubmitJobCorsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ReelCraftApi
+      ResourceId: !Ref SubmitJobResource
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+  
+  JobStatusCorsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ReelCraftApi
+      ResourceId: !Ref JobStatusIdResource
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+  
+  # API Deployment
+  ApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - SubmitJobMethod
+      - JobStatusMethod
+      - SubmitJobCorsMethod
+      - JobStatusCorsMethod
+    Properties:
+      RestApiId: !Ref ReelCraftApi
+  
+  ApiStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId: !Ref ReelCraftApi
+      DeploymentId: !Ref ApiDeployment
+      StageName: prod
+  
+  # Lambda Permissions
+  SubmitJobPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref SubmitJobFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ReelCraftApi}/*/POST/reel_generation
+  
+  CheckJobStatusPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref CheckJobStatusFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ReelCraftApi}/*/GET/job_status/*
+
+Outputs:
+  ReelStorageBucketName:
+    Description: Name of the S3 bucket for storing videos
+    Value: !Ref ReelStorageBucket
+  
+  ImageUploadBucketName:
+    Description: Name of the S3 bucket for storing images
+    Value: !Ref ImageUploadBucket
+  
+  CodeBucketName:
+    Description: Name of the S3 bucket for Lambda code packages
+    Value: !Ref CodeBucket
+  
+  ApiGatewayEndpoint:
+    Description: URL of the API Gateway endpoint
+    Value: !Sub https://${ReelCraftApi}.execute-api.${AWS::Region}.amazonaws.com/prod
+  
+  VideoCompletionTopicArn:
+    Description: ARN of the SNS topic for video completion notifications
+    Value: !Ref CompletionTopic
+  
+  UserPoolId:
+    Description: ID of the Cognito User Pool
+    Value: !Ref UserPool
+  
+  UserPoolClientId:
+    Description: ID of the Cognito User Pool Client
+    Value: !Ref UserPoolClient
+  
+  IdentityPoolId:
+    Description: ID of the Cognito Identity Pool
+    Value: !Ref IdentityPool

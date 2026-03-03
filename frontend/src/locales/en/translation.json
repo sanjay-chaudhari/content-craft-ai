@@ -1,0 +1,263 @@
+{
+  "APP": {
+    "HEADER": {
+      "TITLE": "Amazon Bedrock Nova",
+      "SUBTITLE": "Generate AI-powered content with Amazon Bedrock",
+      "SIGN_OUT": "Sign Out",
+      "WELCOME": "Welcome, {{username}}"
+    },
+    "FOOTER": {
+      "POWERED_BY": "Powered by Amazon Bedrock and AWS Amplify",
+      "COPYRIGHT": "© {{year}} All rights reserved."
+    },
+    "WELCOME": "Welcome to Amazon Bedrock Nova",
+    "BACK_TO_FEATURES": "Back to Features",
+    "NOVA_REEL_TITLE": "Nova Reel Generator"
+  },
+  "AUTH": {
+    "SIGN_IN": {
+      "TITLE": "Sign In",
+      "USERNAME": "Username",
+      "PASSWORD": "Password",
+      "FORGOT_PASSWORD": "Forgot password?",
+      "SIGN_IN": "Sign In",
+      "SIGNING_IN": "Signing In...",
+      "NO_ACCOUNT": "Don't have an account?",
+      "SIGN_UP": "Sign Up",
+      "NEED_VERIFICATION": "Need to verify your account?",
+      "VERIFY_ACCOUNT": "Verify Account"
+    },
+    "SIGN_UP": {
+      "TITLE": "Create Account",
+      "USERNAME": "Username",
+      "PASSWORD": "Password",
+      "CONFIRM_PASSWORD": "Confirm Password",
+      "EMAIL": "Email",
+      "PHONE": "Phone Number",
+      "SIGN_UP": "Sign Up",
+      "SIGNING_UP": "Signing Up...",
+      "HAVE_ACCOUNT": "Already have an account?",
+      "SIGN_IN": "Sign In",
+      "PASSWORD_REQUIREMENTS": "Password must be at least 8 characters and include uppercase, lowercase, numbers, and special characters."
+    },
+    "CONFIRM": {
+      "TITLE": "Confirm Sign Up",
+      "USERNAME": "Username",
+      "CODE": "Confirmation Code",
+      "CONFIRM": "Confirm",
+      "CONFIRMING": "Confirming...",
+      "RESEND": "Resend Code",
+      "INSTRUCTIONS": "Please enter the verification code sent to your email address.",
+      "BACK_TO_SIGN_IN": "Back to",
+      "SIGN_IN": "Sign In"
+    },
+    "FORGOT_PASSWORD": {
+      "TITLE": "Reset Password",
+      "USERNAME": "Username",
+      "SUBMIT": "Send Reset Code",
+      "SUBMITTING": "Sending...",
+      "BACK": "Back to Sign In"
+    },
+    "NEW_PASSWORD": {
+      "TITLE": "Set New Password",
+      "CODE": "Verification Code",
+      "PASSWORD": "New Password",
+      "CONFIRM_PASSWORD": "Confirm New Password",
+      "SUBMIT": "Reset Password",
+      "SUBMITTING": "Resetting..."
+    },
+    "ERROR": {
+      "ALL_FIELDS_REQUIRED": "All fields are required",
+      "PASSWORDS_DO_NOT_MATCH": "Passwords do not match",
+      "USERNAME_REQUIRED": "Username is required",
+      "CONFIRMATION_CODE_REQUIRED": "Confirmation code is required",
+      "USER_NOT_CONFIRMED": "User is not confirmed. Please verify your account.",
+      "INCORRECT_USERNAME_PASSWORD": "Incorrect username or password",
+      "SIGN_IN_FAILED": "Sign in failed. Please try again.",
+      "SIGN_OUT_FAILED": "Sign out failed. Please try again.",
+      "USERNAME_EXISTS": "Username already exists",
+      "SIGN_UP_FAILED": "Sign up failed. Please try again.",
+      "INVALID_CODE": "Invalid verification code",
+      "CONFIRM_SIGN_UP_FAILED": "Failed to confirm sign up. Please try again.",
+      "FORGOT_PASSWORD_FAILED": "Failed to send reset code. Please try again.",
+      "PASSWORD_RESET_FAILED": "Failed to reset password. Please try again."
+    },
+    "LEGAL": {
+      "TERMS_NOTICE": "By signing up, you agree to our Terms of Service and Privacy Policy",
+      "TERMS": "Terms of Service",
+      "PRIVACY": "Privacy Policy"
+    }
+  },
+  "FORM": {
+    "VIDEO_TYPE": {
+      "LABEL": "Video Type",
+      "SINGLE_CLIP": "Single Clip (6s)",
+      "AUTOMATED_MULTI_CLIP": "Automated Multi-Clip (12-120s)",
+      "MANUAL_MULTI_CLIP": "Manual Multi-Clip (Custom)"
+    },
+    "SINGLE_CLIP": {
+      "TITLE": "Single Clip",
+      "DESCRIPTION": "Generate a 6-second video clip from a text prompt with an optional reference image."
+    },
+    "AUTOMATED_MULTI_CLIP": {
+      "TITLE": "Automated Multi-Clip",
+      "DESCRIPTION": "Generate a longer video with multiple scenes automatically created from your comprehensive prompt."
+    },
+    "MANUAL_MULTI_CLIP": {
+      "TITLE": "Manual Multi-Clip",
+      "DESCRIPTION": "Create a custom video by defining each shot individually with specific prompts and optional images."
+    },
+    "PROMPT": {
+      "LABEL": "Prompt",
+      "PLACEHOLDER": "Describe the video you want to generate...",
+      "HELPER": "Be detailed and descriptive for best results."
+    },
+    "IMAGE": {
+      "LABEL": "Reference Image (Optional)",
+      "PLACEHOLDER": "Upload an image to guide the video generation",
+      "HELPER": "JPEG or PNG, max 5MB",
+      "UPLOAD": "Upload Image",
+      "REMOVE": "Remove"
+    },
+    "DURATION": {
+      "LABEL": "Duration (seconds)",
+      "HELPER": "Choose a duration between 12 and 120 seconds"
+    },
+    "SHOTS": {
+      "LABEL": "Number of Shots",
+      "HELPER": "Choose between 2 and 20 shots"
+    },
+    "SHOT": {
+      "TITLE": "Shot {{number}}",
+      "PROMPT": {
+        "LABEL": "Shot Description",
+        "PLACEHOLDER": "Describe this shot..."
+      }
+    },
+    "SUBMIT": "Generate Video",
+    "SUBMITTING": "Submitting...",
+    "ERRORS": {
+      "REQUIRED": "This field is required",
+      "MIN_LENGTH": "Must be at least {{length}} characters",
+      "MAX_LENGTH": "Must be less than {{length}} characters",
+      "MIN_VALUE": "Must be at least {{value}}",
+      "MAX_VALUE": "Must be less than {{value}}",
+      "IMAGE_SIZE": "Image must be less than 5MB",
+      "IMAGE_FORMAT": "Only JPEG and PNG formats are supported",
+      "DURATION_RANGE": "Duration must be between 12 and 120 seconds",
+      "SHOT_TEXT_REQUIRED": "Shot {{number}} requires a description"
+    }
+  },
+  "STATUS": {
+    "TITLE": "Job Status",
+    "NO_JOB": "No job selected. Submit a video generation request to get started.",
+    "JOB_ID": "Job ID: {{id}}",
+    "STATUS": "Status",
+    "STATUS_LABEL": "Status:",
+    "CREATED_AT": "Created",
+    "PROMPT": "Prompt",
+    "VIDEO": "Video",
+    "PLAY": "Play",
+    "DOWNLOAD": "Download",
+    "REFRESH": "Refresh Status",
+    "AUTO_REFRESH_INTERVAL": "Auto-refreshes every {{seconds}} seconds",
+    "NO_VIDEO_URL": "Video URL not available",
+    "PREVIEW_SHOTS": "View individual shots",
+    "SHOT": "Shot {{number}}",
+    "BACK_TO_VIDEO": "Back to full video",
+    "ERROR": "Error: {{message}}",
+    "STATES": {
+      "SUBMITTED": "Submitted",
+      "PROCESSING": "Processing",
+      "COMPLETED": "Completed",
+      "FAILED": "Failed"
+    },
+    "MESSAGES": {
+      "SUBMITTED": "Your job has been submitted and is waiting to be processed.",
+      "PROCESSING": "Your video is being generated. This may take a few minutes.",
+      "COMPLETED": "Your video has been generated successfully!",
+      "FAILED": "There was an error generating your video. Please try again."
+    },
+    "SUBMITTED": "Submitted",
+    "PROCESSING": "Processing",
+    "COMPLETED": "Completed",
+    "FAILED": "Failed"
+  },
+  "JOBS": {
+    "TITLE": "Your Jobs",
+    "NO_JOBS": "You haven't submitted any jobs yet.",
+    "LOADING": "Loading your jobs...",
+    "ERROR": "Failed to load jobs. Please try again.",
+    "REFRESH": "Refresh",
+    "LOAD_MORE": "Load More",
+    "COLUMNS": {
+      "DATE": "Date",
+      "TYPE": "Type",
+      "STATUS": "Status",
+      "ACTIONS": "Actions"
+    },
+    "TASK_TYPE": {
+      "SINGLE": "Single Clip",
+      "AUTOMATED": "Automated Multi-Clip",
+      "MANUAL": "Manual Multi-Clip"
+    },
+    "VIEW": "View"
+  },
+  "EMAIL": {
+    "TITLE": "Email Notifications",
+    "DESCRIPTION": "Subscribe to receive email notifications when your video generation jobs are complete.",
+    "CURRENT_EMAIL": "Current email",
+    "SUBSCRIBE": "Subscribe",
+    "UNSUBSCRIBE": "Unsubscribe",
+    "SUBSCRIBING": "Subscribing...",
+    "UNSUBSCRIBING": "Unsubscribing...",
+    "SUBSCRIBE_SUCCESS": "Successfully subscribed to email notifications!",
+    "UNSUBSCRIBE_SUCCESS": "Successfully unsubscribed from email notifications.",
+    "SUBSCRIBE_ERROR": "Failed to subscribe. Please try again.",
+    "UNSUBSCRIBE_ERROR": "Failed to unsubscribe. Please try again."
+  },
+  "EMAIL_SUBSCRIPTION": {
+    "TITLE": "Email Notifications",
+    "DESCRIPTION": "Subscribe to receive email notifications when your video generation jobs are complete.",
+    "EMAIL": {
+      "LABEL": "Email Address",
+      "PLACEHOLDER": "Enter your email address"
+    },
+    "SUBSCRIBE": "Subscribe",
+    "UNSUBSCRIBE": "Unsubscribe",
+    "SUBSCRIBING": "Subscribing...",
+    "UNSUBSCRIBING": "Unsubscribing...",
+    "SUCCESS": "Subscription updated successfully!",
+    "ERROR": "Failed to update subscription. Please try again."
+  },
+  "FEATURE_SELECTION": {
+    "TITLE": "Select a Feature",
+    "NOVA_REEL": {
+      "TITLE": "Nova Reel",
+      "DESCRIPTION": "Generate professional video reels from text prompts and optional images using Amazon Bedrock's Nova model."
+    },
+    "NOVA_IMAGE": {
+      "TITLE": "Nova Image",
+      "DESCRIPTION": "Generate high-quality images from text descriptions using Amazon Bedrock's Nova model.",
+      "COMING_SOON": "Coming Soon"
+    }
+  },
+  "NOVA_IMAGE": {
+    "TITLE": "Nova Image Generator",
+    "COMING_SOON": "Coming Soon",
+    "DESCRIPTION": "The Nova Image Generator feature is currently under development. Soon you'll be able to create stunning images from text descriptions using Amazon Bedrock's Nova model.",
+    "PLANNED_FEATURES": "Planned Features",
+    "FEATURE_1": "Text-to-image generation",
+    "FEATURE_2": "Style customization options",
+    "FEATURE_3": "Image variations",
+    "FEATURE_4": "High-resolution output",
+    "FEATURE_5": "Image editing capabilities",
+    "NOTIFY_ME": "Notify Me When Available"
+  },
+  "ERROR_BOUNDARY": {
+    "TITLE": "Something went wrong",
+    "MESSAGE": "The application encountered an unexpected error.",
+    "DETAILS": "Error details",
+    "RELOAD": "Reload Application"
+  }
+}
