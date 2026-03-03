@@ -1,263 +1,99 @@
-# ReelCraft AI Infrastructure (AWS CDK)
+# ContentCraft AI — Infrastructure (AWS CDK)
 
-This directory contains the AWS CDK (Cloud Development Kit) infrastructure code for deploying the ReelCraft AI application. The infrastructure is defined using Python and creates all necessary AWS resources for a fully functional serverless video generation platform.
-
-## Architecture Overview
-
-The CDK stack creates a comprehensive serverless architecture including:
-
-- **API Gateway**: RESTful API endpoints with Cognito authorization
-- **Lambda Functions**: Serverless compute for video processing and job management
-- **DynamoDB**: NoSQL database for job tracking and user data
-- **S3 Buckets**: Storage for videos, images, and static assets
-- **Cognito**: User authentication and authorization
-- **SNS**: Email notification system
-- **CloudWatch**: Monitoring and logging
-- **IAM**: Security roles and policies
+AWS CDK (Python) stack for deploying the ContentCraft AI serverless backend.
 
 ## Project Structure
 
 ```
 infrastructure/
-├── reelcraft_stack.py          # Main CDK stack definition
-├── constructs/                 # Custom CDK constructs
-│   ├── api_construct.py        # API Gateway and Lambda integration
-│   ├── auth_construct.py       # Cognito authentication setup
-│   ├── storage_construct.py    # S3 and DynamoDB resources
-│   └── monitoring_construct.py # CloudWatch and alerting
-├── cloudformation/             # CloudFormation deployment alternative
-│   ├── ReelCraftStack-Complete.yaml
-│   └── deploy-reelcraft.sh
-└── README.md                   # This file
+├── reelcraft_stack.py      # Main CDK stack — wires all constructs
+└── constructs/
+    ├── api.py              # API Gateway + Cognito authorizer
+    ├── auth.py             # Cognito User Pool + Identity Pool
+    ├── compute.py          # Lambda functions + IAM permissions
+    ├── storage.py          # DynamoDB + S3 buckets
+    ├── notifications.py    # SNS topic
+    └── email_subscription.py  # Subscribe/unsubscribe Lambda
 ```
 
-## Key Components
+## AWS Resources Created
 
-### 1. Main Stack (`reelcraft_stack.py`)
-The primary CDK stack that orchestrates all infrastructure components:
-
-- **Resource Organization**: Logical grouping of related AWS resources
-- **Cross-Stack References**: Manages dependencies between components
-- **Environment Configuration**: Handles different deployment environments
-- **Output Values**: Provides necessary values for frontend configuration
-
-### 2. API Construct (`constructs/api_construct.py`)
-Defines the API Gateway and Lambda function integration:
-
-- **REST API**: Creates API Gateway with proper CORS configuration
-- **Lambda Integration**: Connects API endpoints to Lambda functions
-- **Authorization**: Integrates Cognito User Pool authorizers
-- **Request/Response Mapping**: Handles API request and response transformations
-
-**API Endpoints**:
-- `POST /submit` - Submit video generation jobs
-- `GET /status/{jobId}` - Get job status
-- `GET /jobs` - List user jobs (with pagination)
-- `POST /subscribe` - Manage email subscriptions
-- `DELETE /subscribe` - Unsubscribe from notifications
-
-### 3. Authentication Construct (`constructs/auth_construct.py`)
-Sets up Cognito-based authentication:
-
-- **User Pool**: Manages user registration and authentication
-- **User Pool Client**: Frontend application integration
-- **Identity Pool**: Provides AWS credentials for authenticated users
-- **Password Policies**: Enforces strong password requirements
-- **Email Verification**: Requires email verification for new accounts
-
-### 4. Storage Construct (`constructs/storage_construct.py`)
-Manages data storage resources:
-
-- **DynamoDB Table**: Stores job metadata and user preferences
-  - Partition Key: `user_id`
-  - Sort Key: `job_id`
-  - Global Secondary Indexes for efficient querying
-- **S3 Buckets**: 
-  - Video storage bucket with lifecycle policies
-  - Image upload bucket with CORS configuration
-  - Static website hosting (optional)
-
-### 5. Monitoring Construct (`constructs/monitoring_construct.py`)
-Implements observability and alerting:
-
-- **CloudWatch Dashboards**: Visual monitoring of key metrics
-- **CloudWatch Alarms**: Automated alerting for critical issues
-- **Log Groups**: Centralized logging for all Lambda functions
-- **Custom Metrics**: Business-specific monitoring metrics
+| Resource | Purpose |
+|----------|---------|
+| API Gateway (REST) | `/reel_generation`, `/job_status/{id}`, `/jobs`, `/plan`, `/subscribe` |
+| Lambda × 5 | submit, process, status, list_jobs, director, subscribe |
+| DynamoDB | Job tracking with `UserIdIndex` GSI and DynamoDB Streams |
+| S3 × 2 | Video storage + image upload |
+| Cognito User Pool | Auth — admin-created users only (self-signup disabled) |
+| Cognito Identity Pool | AWS credentials for authenticated users |
+| Amazon Bedrock (Nova Pro) | Director Agent — `amazon.nova-pro-v1:0` |
+| Amazon Bedrock (Nova Reel) | Video generation — `amazon.nova-reel-v1:1` |
+| Amazon SES | HTML email notifications on job completion |
+| Amazon SNS | Job completion topic with user-specific filter policies |
 
 ## Deployment
 
 ### Prerequisites
 
-1. **AWS CLI**: Configured with appropriate credentials
-2. **AWS CDK**: Version 2.x installed globally
-3. **Python**: Version 3.8 or higher
-4. **Node.js**: For CDK CLI (version 14.x or higher)
+- AWS CLI configured
+- Python 3.8+
+- Node.js 14+ (for CDK CLI)
+- CDK v2: `npm install -g aws-cdk`
+- Bedrock model access enabled for `amazon.nova-reel-v1:1` and `amazon.nova-pro-v1:0`
+- SES verified sender email
 
-### Installation
-
-1. Install CDK CLI:
-   ```bash
-   npm install -g aws-cdk
-   ```
-
-2. Install Python dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. Bootstrap CDK (first time only):
-   ```bash
-   cdk bootstrap
-   ```
-
-### Deployment Commands
-
-1. **Synthesize CloudFormation**:
-   ```bash
-   cdk synth
-   ```
-
-2. **Deploy Stack**:
-   ```bash
-   cdk deploy
-   ```
-
-3. **Destroy Stack**:
-   ```bash
-   cdk destroy
-   ```
-
-### Environment Configuration
-
-The stack supports multiple deployment environments through context variables:
+### Steps
 
 ```bash
-# Development deployment
-cdk deploy --context environment=dev
+# Install dependencies
+pip install -r requirements.txt
 
-# Production deployment
-cdk deploy --context environment=prod
+# Bootstrap CDK (first time only)
+cdk bootstrap
+
+# Set required environment variable
+export SES_SENDER_EMAIL=your-verified-email@example.com
+
+# Deploy
+cdk deploy
 ```
 
-## Configuration Options
+### Stack Outputs
+
+After deployment, note these values for the frontend `.env`:
+
+| Output | Frontend Variable |
+|--------|------------------|
+| `ContentCraftStack.ApiGatewayEndpoint` | `VITE_API_ENDPOINT` |
+| `ContentCraftStack.UserPoolId` | `VITE_COGNITO_USER_POOL_ID` |
+| `ContentCraftStack.UserPoolClientId` | `VITE_COGNITO_USER_POOL_CLIENT_ID` |
+| `ContentCraftStack.IdentityPoolId` | `VITE_COGNITO_IDENTITY_POOL_ID` |
 
 ### Environment Variables
-Set these in your deployment environment:
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `CDK_DEFAULT_ACCOUNT` | AWS Account ID | Current account |
-| `CDK_DEFAULT_REGION` | AWS Region | us-east-1 |
-| `ENVIRONMENT` | Deployment environment | dev |
+| Variable | Description |
+|----------|-------------|
+| `SES_SENDER_EMAIL` | Verified SES email used as notification sender |
+| `CDK_DEFAULT_ACCOUNT` | AWS account ID (optional, defaults to current) |
+| `CDK_DEFAULT_REGION` | AWS region (optional, defaults to current) |
 
-### Stack Parameters
-Customize deployment through CDK context:
+## Creating a Cognito User
 
-```json
-{
-  "environment": "prod",
-  "enableMonitoring": true,
-  "retentionDays": 30,
-  "enableBackup": true
-}
+Self-signup is disabled. Create users via CLI after deployment:
+
+```bash
+aws cognito-idp admin-create-user \
+  --user-pool-id <user-pool-id> \
+  --username <username> \
+  --user-attributes Name=email,Value=<email> \
+  --temporary-password <temp-password> \
+  --region us-east-1
 ```
 
-## Security Features
+## Teardown
 
-### IAM Roles and Policies
-- **Least Privilege**: Each Lambda function has minimal required permissions
-- **Resource-Based Policies**: S3 and DynamoDB access controls
-- **Cross-Service Access**: Secure integration between AWS services
+```bash
+cdk destroy
+```
 
-### Data Protection
-- **Encryption at Rest**: DynamoDB and S3 encryption enabled
-- **Encryption in Transit**: HTTPS/TLS for all API communications
-- **Access Logging**: Comprehensive audit trails
-
-### Network Security
-- **VPC Integration**: Optional VPC deployment for enhanced isolation
-- **Security Groups**: Network-level access controls
-- **API Gateway Throttling**: Rate limiting and DDoS protection
-
-## Monitoring and Observability
-
-### CloudWatch Integration
-- **Metrics**: Custom and AWS service metrics
-- **Logs**: Centralized logging with retention policies
-- **Alarms**: Automated alerting for operational issues
-- **Dashboards**: Visual monitoring interfaces
-
-### Key Metrics Monitored
-- API Gateway request rates and errors
-- Lambda function duration and errors
-- DynamoDB read/write capacity and throttling
-- S3 storage utilization and access patterns
-
-## Cost Optimization
-
-### Resource Optimization
-- **Lambda Memory**: Right-sized based on function requirements
-- **DynamoDB**: On-demand billing for variable workloads
-- **S3 Lifecycle**: Automated transition to cheaper storage classes
-- **CloudWatch**: Log retention policies to manage costs
-
-### Cost Monitoring
-- **AWS Cost Explorer**: Integration for cost tracking
-- **Budget Alerts**: Automated cost threshold notifications
-- **Resource Tagging**: Detailed cost allocation tracking
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Bootstrap Required**:
-   ```bash
-   cdk bootstrap aws://ACCOUNT-NUMBER/REGION
-   ```
-
-2. **Permission Errors**:
-   - Verify AWS credentials and permissions
-   - Check IAM roles and policies
-
-3. **Resource Conflicts**:
-   - Use unique stack names for multiple deployments
-   - Check for existing resource name conflicts
-
-### Debugging
-
-1. **CloudFormation Events**: Check AWS Console for deployment events
-2. **CDK Diff**: Compare changes before deployment
-   ```bash
-   cdk diff
-   ```
-3. **CloudWatch Logs**: Monitor Lambda function logs for runtime issues
-
-## Best Practices
-
-### Development
-- Use CDK context for environment-specific configurations
-- Implement proper error handling in custom constructs
-- Follow AWS Well-Architected Framework principles
-
-### Deployment
-- Test in development environment before production
-- Use CloudFormation change sets for production deployments
-- Implement proper backup and disaster recovery procedures
-
-### Security
-- Regularly update CDK and dependencies
-- Implement least-privilege access controls
-- Enable AWS Config for compliance monitoring
-
-## Support and Maintenance
-
-### Updates
-- Regularly update CDK version and dependencies
-- Monitor AWS service updates and deprecations
-- Test updates in non-production environments first
-
-### Backup and Recovery
-- DynamoDB point-in-time recovery enabled
-- S3 versioning and cross-region replication
-- CloudFormation stack backup procedures
+> S3 buckets with content may need manual deletion from the AWS console.
