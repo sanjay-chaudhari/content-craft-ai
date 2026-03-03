@@ -6,6 +6,8 @@ This module defines the compute resources used by the application:
 - IAM roles and policies for secure service access
 """
 
+import os
+
 from aws_cdk import (
     aws_lambda as lambda_,
     aws_iam as iam,
@@ -176,7 +178,7 @@ class ComputeConstruct(Construct):
                 "IMAGE_BUCKET": image_upload_bucket.bucket_name,
                 "SNS_TOPIC_ARN": completion_topic.topic_arn,
                 "MODEL_ID": "amazon.nova-reel-v1:1",
-                "SES_SENDER_EMAIL": "sanjaycz@amazon.com"
+                "SES_SENDER_EMAIL": os.environ.get("SES_SENDER_EMAIL", "your-verified-email@example.com")
             }
         )
         

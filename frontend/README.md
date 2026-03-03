@@ -40,14 +40,21 @@ cd frontend
 npm install
 ```
 
-Create `.env`:
+Create `.env` from the example template:
+```bash
+cp .env.example .env
+```
+
+Fill in values from CDK outputs:
 ```
 VITE_AWS_REGION=us-east-1
-VITE_COGNITO_USER_POOL_ID=your-user-pool-id
-VITE_COGNITO_USER_POOL_CLIENT_ID=your-client-id
-VITE_COGNITO_IDENTITY_POOL_ID=your-identity-pool-id
+VITE_COGNITO_USER_POOL_ID=<from cdk output>
+VITE_COGNITO_USER_POOL_CLIENT_ID=<from cdk output>
+VITE_COGNITO_IDENTITY_POOL_ID=<from cdk output>
 VITE_API_ENDPOINT=https://{api-id}.execute-api.{region}.amazonaws.com/prod
 ```
+
+> **Note:** `.env` is gitignored and must never be committed. Use `.env.example` as a reference template.
 
 ```bash
 npm run dev   # http://localhost:5173

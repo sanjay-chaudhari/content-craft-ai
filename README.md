@@ -173,6 +173,13 @@ cdk synth
 cdk deploy
 ```
 
+> **Note:** Before deploying, set the `SES_SENDER_EMAIL` environment variable to a verified SES email address in your account:
+> ```bash
+> export SES_SENDER_EMAIL=your-verified-email@example.com
+> cdk deploy
+> ```
+> This email will be used as the sender for job completion notifications. You can verify an email address in the [SES console](https://console.aws.amazon.com/ses/home#/verified-identities).
+
 ### 4. Note the API Endpoint
 
 After deployment completes, note the API Gateway URL from the Outputs section:
@@ -545,11 +552,19 @@ ReelCraft AI includes a modern web interface built with React.
    npm install
    ```
 
-3. Configure the API endpoint:
-   - Create a `.env` file with your API endpoint:
+3. Configure environment variables:
+   - Copy `.env.example` to `.env` and fill in values from CDK outputs:
+   ```bash
+   cp .env.example .env
    ```
+   ```
+   VITE_AWS_REGION=us-east-1
+   VITE_COGNITO_USER_POOL_ID=<from cdk output>
+   VITE_COGNITO_USER_POOL_CLIENT_ID=<from cdk output>
+   VITE_COGNITO_IDENTITY_POOL_ID=<from cdk output>
    VITE_API_ENDPOINT=https://{api-id}.execute-api.{region}.amazonaws.com/prod
    ```
+   > **Note:** `.env` is gitignored and must never be committed. Use `.env.example` as a reference template.
 
 4. Start the development server:
    ```bash
