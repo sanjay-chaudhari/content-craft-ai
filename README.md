@@ -140,8 +140,8 @@ Follow these steps to deploy the application:
 ### 1. Clone the Repository
 
 ```bash
-git clone git@ssh.gitlab.aws.dev:sanjaycz/nova-samples.git 
-cd nova-reel
+git clone https://github.com/sanjay-chaudhari/content-craft-ai.git
+cd content-craft-ai
 ```
 
 ### 2. Set Up Python Environment
