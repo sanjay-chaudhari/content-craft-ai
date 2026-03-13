@@ -3,7 +3,7 @@
 ContentCraft AI is a serverless application that leverages Amazon Bedrock's Nova models to generate professional video reels from text prompts and optional reference images. It features a **Nova Pro-powered Director Agent** that reasons about your creative goal and autonomously produces a full multi-shot production plan — no prompt engineering required.
 
 <div align="center">
-  <img src="architecture/architecture.png" alt="ContentCraft AI Architecture"/>
+  <img src="architecture/ContentCraft.drawio.png" alt="ContentCraft AI Architecture"/>
   <p><em>ContentCraft AI Serverless Architecture</em></p>
 </div>
 
@@ -140,8 +140,8 @@ Follow these steps to deploy the application:
 ### 1. Clone the Repository
 
 ```bash
-git clone git@ssh.gitlab.aws.dev:sanjaycz/nova-samples.git 
-cd nova-reel
+git clone https://github.com/sanjay-chaudhari/content-craft-ai.git
+cd content-craft-ai
 ```
 
 ### 2. Set Up Python Environment
@@ -681,8 +681,4 @@ This will remove:
 - [AWS Lambda Best Practices](https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html)
 - [Amazon SNS Developer Guide](https://docs.aws.amazon.com/sns/latest/dg/welcome.html)
 
-## License
 
-Copyright 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
-SPDX-License-Identifier: MIT-0

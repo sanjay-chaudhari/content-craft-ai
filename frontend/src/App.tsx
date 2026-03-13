@@ -90,13 +90,8 @@ const App: React.FC = () => {
         </div>
 
         {/* Bottom row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 rounded-2xl bg-slate-900 border border-slate-800 p-6">
-            <JobsList apiEndpoint={apiEndpoint} setJobId={setJobId} setStatusCheck={setStatusCheck} />
-          </div>
-          <div className="rounded-2xl bg-slate-900 border border-slate-800 p-6">
-            <EmailSubscription apiEndpoint={apiEndpoint} />
-          </div>
+        <div className="rounded-2xl bg-slate-900 border border-slate-800 p-6">
+          <JobsList apiEndpoint={apiEndpoint} setJobId={setJobId} setStatusCheck={setStatusCheck} />
         </div>
       </main>
       <Footer />
@@ -107,7 +102,7 @@ const App: React.FC = () => {
 const Footer: React.FC = () => (
   <footer className="border-t border-slate-800 mt-12 py-6">
     <div className="container mx-auto px-4 text-center text-slate-600 text-xs">
-      ContentCraft AI · Powered by Amazon Nova · AWS Hackathon 2025
+      ContentCraft AI · Powered by Amazon Nova
     </div>
   </footer>
 );

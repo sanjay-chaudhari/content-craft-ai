@@ -354,7 +354,7 @@ def process_job_handler(event, context):
         </table>
       </td></tr>
       <tr><td style="background:#f8f8f8;padding:16px 32px;border-top:1px solid #eee;">
-        <p style="margin:0;color:#aaa;font-size:12px;text-align:center;">ContentCraft AI &nbsp;&#183;&nbsp; Built with Amazon Nova &nbsp;&#183;&nbsp; AWS Hackathon 2025</p>
+        <p style="margin:0;color:#aaa;font-size:12px;text-align:center;">ContentCraft AI &nbsp;&#183;&nbsp; Built with Amazon Nova</p>
       </td></tr>
     </table>
   </td></tr>
